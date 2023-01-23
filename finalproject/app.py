@@ -19,9 +19,9 @@ def diet():
 def statistics():
     return render_template("statistics.html")
 
-@app.route("/timer", methods=["GET"])
-def timer():
-    return render_template("timer.html")
+@app.route("/test", methods=["GET"])
+def test():
+    return render_template("test.html")
 
 if __name__ == '__main__':
     app.run(debug=True)
