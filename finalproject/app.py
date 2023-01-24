@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Flask, redirect, render_template, url_for, request
 
 app = Flask(__name__, static_folder='static')
@@ -9,6 +10,10 @@ def index():
 @app.route("/programs", methods=["GET"])
 def programs():
     return render_template("programs.html")
+
+@app.route("/program", methods=["GET"])
+def program():
+    return render_template("program.html")
 
 @app.route("/diet", methods=["GET"])
 def diet():

@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Programs
+{% endblock %}
+
+{% block main %}
+
+        
+
+                <div class="program">
+                        <div class="form-group">
+                            <div class="darkmodetext" >
+                                <h5>Benchpress (Barbell)</h5>
+                            </div>
+                            <label class="darkmodelabeltext" for="weight">Weight (kg):</label>
+                            <input type="number" class="form-control-sm" id="weight" placeholder="Enter weight">
+                        </div>
+                        <div class="form-group">
+                            <label class="darkmodelabeltext" for="reps">Reps:</label>
+                            <input type="number" class="form-control-sm" id="reps" placeholder="Enter number of reps">
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="startTimer()">Finish Set</button>
+
+                    <div id="timer"></div>
+                </div>
+                
+                <div class="program">
+                    <div class="form-group">
+                        <div class="darkmodetext" >
+                            <h5>Overhead Press (Barbell)</h5>
+                        </div>
+                        <label class="darkmodelabeltext" for="weight">Weight (kg):</label>
+                        <input type="number" class="form-control-sm" id="weight" placeholder="Enter weight">
+                    </div>
+                    <div class="form-group">
+                        <label class="darkmodelabeltext" for="reps">Reps:</label>
+                        <input type="number" class="form-control-sm" id="reps" placeholder="Enter number of reps">
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="startTimer()">Finish Set</button>
+
+                <div id="timer"></div>
+            </div>
+
+            
+
+            <div class="program">
+                <div class="form-group">
+                    <div class="darkmodetext" >
+                        <h5>Incline Bench Press (Dumbbell)</h5>
+                    </div>
+                    <label class="darkmodelabeltext" for="weight">Weight (kg):</label>
+                    <input type="number" class="form-control-sm" id="weight" placeholder="Enter weight">
+                </div>
+                <div class="form-group">
+                    <label class="darkmodelabeltext" for="reps">Reps:</label>
+                    <input type="number" class="form-control-sm" id="reps" placeholder="Enter number of reps">
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="startTimer()">Finish Set</button>
+
+            <div id="timer"></div>
+        </div>
+
+    <script>
+    // Timer function that starts when the button is clicked
+    function startTimer() {
+        // Code for starting the timer
+    }
+    </script>
+
+
+{% endblock %}
