@@ -39,6 +39,7 @@
                             <li class="nav-item"><a class="nav-link" href="/test">test</a></li>
                         </ul>
                         <ul class="navbar-nav ms-auto mt-2">
+                            <li class="nav-item"><a class="nav-link" href="/program">My Program</a></li>
                             <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
                         </ul>
                 {% else %}
@@ -58,7 +59,7 @@
                     {% if message == "Invalid username or password" %}
                         <div class="alert alert-danger mb-0 text-center" role="alert">{{ message }}</div>
 
-                    {% elif message == "Username already taken :(" or "Must provide password :(" or "Passwords don't match :(" %}
+                    {% elif message == "Username already taken :(" or "Must provide password :(" or "Passwords don't match :(" or "Invalid username and/or password" %}
                         <div class="alert alert-warning mb-0 text-center" role="alert">{{ message }}</div>
 
                     {% else %}

@@ -5,7 +5,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-from functions import login_required
+from functions import login_required, open_db, close_db
 
 app = Flask(__name__, static_folder='static')
 
@@ -20,15 +20,41 @@ Session(app)
 def index():
     return render_template("index.html")
 
+
 @app.route("/programs", methods=["GET"])
 @login_required
 def programs():
     return render_template("programs.html")
 
-@app.route("/program", methods=["GET"])
+
+@app.route("/program", methods=["GET", "POST"])
 @login_required
 def program():
-    return render_template("program.html")
+    
+    # Open DB
+    conn = open_db('permabulk.db')
+    c = conn.cursor()
+
+    # Query DB
+    c.execute('SELECT exercise, reps FROM exercises WHERE day = 1;')
+    rows = c.fetchall()
+
+    # Get the column names
+    columns = [description[0] for description in c.description]
+    
+    # Convert rows to a list of dictionaries
+    exercises = [dict(zip(columns, row)) for row in rows]
+
+    print(exercises)
+    
+
+
+
+    
+    return render_template("program.html", exercises=exercises)
+
+    
+
 
 @app.route("/diet", methods=["GET"])
 @login_required
@@ -41,32 +67,53 @@ def diet():
 def statistics():
     return render_template("statistics.html")
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    # Forget any user_id
-    session.clear()
-
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-
+        
         # Ensure username was submitted
         if not request.form.get("username"):
-            flash("must provide username")
+            flash("Must provide username")
+            return redirect("/login")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            flash("must provide password")
+            flash("Must provide password")
+            return redirect("/login")
 
-        # # Query database for username
-        # rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        # Open database
+        conn = open_db('permabulk.db')
+        c = conn.cursor()
 
-        # # Ensure username exists and password is correct
-        # if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-        #     return flash("invalid username and/or password", 403)
+        # Ensure username exists and password is correct
+        c.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
+        rows = c.fetchall()
 
-        # # Remember which user has logged in
-        # session["user_id"] = rows[0]["id"]
+        # If there is no row returned username doesn't exist
+        if len(rows) != 1:
+            flash("Invalid username and/or password")
+            return redirect("/login")
+
+        # Get the column names
+        columns = [description[0] for description in c.description]
+        
+        # Convert rows to a list of dictionaries
+        rows = [dict(zip(columns, row)) for row in rows]
+
+        # Check if password is correct
+        if not check_password_hash(rows[0]["password"], request.form.get("password")):
+            flash("Invalid username and/or password")
+            return redirect("/login")
+
+        # Add to session
+        session["username"] = request.form.get("username")
+        session["user_id"] = rows[0]["user_id"]
+
+        # Close database
+        close_db(conn)
 
         # Succesful login
         flash("You were successfully logged in!")
@@ -77,59 +124,54 @@ def login():
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
-        
 
+        
 @app.route("/register", methods=["GET", "POST"])
 def register():
     
-    
-
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return flash("Must provide username", 400)
+            return flash("Must provide username")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
 
-            flash("Must provide password :|", 400)
+            flash("Must provide password :|")
             return redirect("/register")
 
         # Ensure password confirmation was submitted
         elif not request.form.get("confirmation") == request.form.get("password"):
-            flash("Passwords don't match :(", 400)
+            flash("Passwords don't match :(")
             return redirect("/register")
 
         # Open database
-        conn = sqlite3.connect('permabulk.db', check_same_thread=False)
+        conn = open_db('permabulk.db')
         c = conn.cursor()
 
+        # INSERT new unique user into database
         try: c.execute("INSERT INTO users (username, password) VALUES(?, ?)", (request.form.get("username"), generate_password_hash(request.form.get("password")),))
 
         except sqlite3.IntegrityError as error:
             flash("Username already taken :(")
             return redirect("/register")
 
-    
         # Add to session to log user in
-        session["username"] = request.form.get("username")
-
         c.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
         rows = c.fetchall()
-        
+
+        # Set current session
+        session["username"] = request.form.get("username")
         session["user_id"] = rows[0][0]
- 
+
         # Close database
-        conn.commit()
-        conn.close()
+        close_db(conn)
 
-
-        # Flash message for succesfull transaction
+        # Flash message for succesfull registration
         flash("Registration successfull!")
-
-        
+       
         return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -143,12 +185,12 @@ def logout():
     session.clear()
 
     # Redirect user to login form
-    return redirect("/")
+    return redirect("/login")
 
 @app.route("/test")
 def test():
 
-    return render_template("test.html")
+    return render_template("calculator.html")
 
 
 if __name__ == '__main__':

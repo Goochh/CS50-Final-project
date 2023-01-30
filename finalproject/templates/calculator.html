@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Calculator
+{% endblock %}
+
+{% block main %}
+
+            <div class="table-responsive">
+                <table class="darkmodetext">
+                    <thead>
+                        <tr>
+                            <th>Benchpress (1 Rep Max)</th>     
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" class="form-control" placeholder="KG"></td>
+                            <td><input type="number" class="form-control" placeholder="xReps"></td>
+                            <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                        </tr>     
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive">
+                <table class="darkmodetext">
+                    <thead>
+                        <tr>
+                            <th>Back Squat (1 Rep Max)</th>                   
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" class="form-control" placeholder="KG"></td>
+                            <td><input type="number" class="form-control" placeholder="xReps"></td>
+                            <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                        </tr> 
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive">
+                <table class="darkmodetext">
+                    <thead>
+                        <tr>
+                            <th>Deadlift (1 Rep Max)</th>                   
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" class="form-control" placeholder="KG"></td>
+                            <td><input type="number" class="form-control" placeholder="xReps"></td>
+                            <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                        </tr> 
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-responsive">
+                <table class="darkmodetext">
+                    <thead>
+                        <tr>
+                            <th>Overhead Press (1 Rep Max)</th>                   
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="number" class="form-control" placeholder="KG"></td>
+                            <td ><input type="number" class="form-control" placeholder="xReps"></td>
+                            <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                        </tr> 
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="in-middle">
+                <h1 class="darkmodetext">1 Rep Max Estimate Calculator</h1>
+                <div class="table-responsive">
+                    <table class="darkmodetext">
+                        <thead>
+                    
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" class="form-control" placeholder="KG"></td>
+                                <td><input type="number" class="form-control" placeholder="xReps"></td>
+                                <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="darkmodetext">
+                        <thead>
+                    
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" class="form-control" placeholder="1 Rep Max"></td>
+                            </tr> 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+{% endblock %}

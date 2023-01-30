@@ -104,3 +104,13 @@ table.darkmodetext {
 .btn-info {
     background-color: #0d6efd !important;
 }
+
+.header {
+    background-color: #dddddd;
+    text-align: center;
+  }
+
+.day {
+    padding: 1em;
+    text-align: left;
+}
