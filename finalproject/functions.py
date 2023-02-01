@@ -25,6 +25,7 @@ def open_db(db_file):
 
 def close_db(conn):
     try:
+        conn.commit()
         conn.close()
     except Error as e:
         print(e)

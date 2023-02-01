@@ -15,16 +15,17 @@
                 <table class="darkmodetext">
                     <thead>
                         <tr>
-                            <th>{{ exercise.exercise }}</th>     
+                            <th colspan="2">{{ exercise.exercise }} </th>     
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        {% for i in range(exercise.sets) %}
                         <tr>
                             <td><input type="number" class="form-control" placeholder="KG"></td>
                             <td><input type="number" class="form-control" placeholder="{{ exercise.reps }}"></td>
                             <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
                         </tr>  
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

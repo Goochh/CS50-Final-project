@@ -1,5 +1,6 @@
 import sqlite3
 
+from sqlite3 import Error
 from flask import Flask, flash, redirect, render_template, url_for, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -21,22 +22,86 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/programs", methods=["GET"])
+@app.route("/programs", methods=["GET", "POST"])
 @login_required
 def programs():
-    return render_template("programs.html")
+    
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        
+        # Fetch chosen program
+        session["program_id"] = request.form.get("program_id")
+        
+        # Open DB
+        conn = open_db('permabulk.db')
+        c = conn.cursor()
+
+        # Update user progress table
+        try:
+            c.execute('INSERT INTO user_program_progress (user_id, program_id) VALUES (?, ?);', (session["user_id"], session["program_id"], ))
+        
+        except Error as e:
+            c.execute('UPDATE user_program_progress SET program_id = ? WHERE user_id = ?;', (session["program_id"], session["user_id"], ))
+
+        # Query DB
+        c.execute('SELECT * FROM programs')
+        rows = c.fetchall()
+
+        # Get the column names
+        columns = [description[0] for description in c.description]
+        
+        # Convert rows to a list of dictionaries
+        programs = [dict(zip(columns, row)) for row in rows]
+
+        # Close DB
+        close_db(conn)
+
+        # Redirect user to home page
+        return render_template("current_program.html", programs=programs)
 
 
-@app.route("/program", methods=["GET", "POST"])
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+
+        # Open DB
+        conn = open_db('permabulk.db')
+        c = conn.cursor()
+
+        # Query DB
+        c.execute('SELECT * FROM programs')
+        rows = c.fetchall()
+
+        # Get the column names
+        columns = [description[0] for description in c.description]
+        
+        # Convert rows to a list of dictionaries
+        programs = [dict(zip(columns, row)) for row in rows]
+
+        return render_template("programs.html", programs=programs)
+
+
+@app.route("/current_program", methods=["GET", "POST"])
 @login_required
-def program():
+def current_program():
     
     # Open DB
     conn = open_db('permabulk.db')
     c = conn.cursor()
 
+    # Fetch user progress from DB
+    c.execute('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
+    rows = c.fetchall()
+
+    # Get the column names
+    columns = [description[0] for description in c.description]
+    
+    # Convert rows to a list of dictionaries
+    userprogress = [dict(zip(columns, row)) for row in rows]
+
+    day = userprogress[0].get('day')
+
     # Query DB
-    c.execute('SELECT exercise, reps FROM exercises WHERE day = 1;')
+    c.execute('SELECT * FROM exercises WHERE day = ?;', (day, ))
     rows = c.fetchall()
 
     # Get the column names
@@ -45,13 +110,10 @@ def program():
     # Convert rows to a list of dictionaries
     exercises = [dict(zip(columns, row)) for row in rows]
 
-    print(exercises)
-    
+    # Close and commit DB
+    close_db(conn)
 
-
-
-    
-    return render_template("program.html", exercises=exercises)
+    return render_template("current_program.html", exercises=exercises)
 
     
 
