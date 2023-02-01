@@ -25,6 +25,23 @@ def index():
 @app.route("/programs", methods=["GET", "POST"])
 @login_required
 def programs():
+
+    
+    # # Open DB
+    # conn = open_db('permabulk.db')
+    # c = conn.cursor()
+
+    # # User already picked program
+    # c.execute("SELECT * FROM user_program_progress WHERE user_id = ?", (session["user_id"], ))
+    # rows = c.fetchall()
+
+    # # Close DB
+    # close_db(conn)
+
+    # # If there is a row returned user started program
+    # if len(rows) == 1:
+    #     flash("Already picked program")
+    #     return redirect("/current_program")
     
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
@@ -57,7 +74,7 @@ def programs():
         close_db(conn)
 
         # Redirect user to home page
-        return render_template("current_program.html", programs=programs)
+        return redirect("/current_program")
 
 
     # User reached route via GET (as by clicking a link or via redirect)
@@ -113,11 +130,9 @@ def current_program():
     # Close and commit DB
     close_db(conn)
 
-    return render_template("current_program.html", exercises=exercises)
+    return render_template("current_program.html", exercises=exercises, day=day)
 
-    
-
-
+    exc
 @app.route("/diet", methods=["GET"])
 @login_required
 def diet():

@@ -6,9 +6,12 @@
 
 {% block main %}    
         
+        {% if day %}
         <div class="day">
-            <h1 class="darkmodetext">Day 1</h1>
+            <h1 class="darkmodetext">Day {{ day }}</h1>
         </div>
+        {% endif %}
+            
         
         {% for exercise in exercises %}
             <div class="table-responsive">
