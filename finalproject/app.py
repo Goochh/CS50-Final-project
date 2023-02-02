@@ -116,9 +116,12 @@ def current_program():
     userprogress = [dict(zip(columns, row)) for row in rows]
 
     day = userprogress[0].get('day')
+    program_id = userprogress[0].get('program_id')
+    print(program_id)
+    print(day)
 
     # Query DB
-    c.execute('SELECT * FROM exercises WHERE day = ?;', (day, ))
+    c.execute('SELECT * FROM exercises WHERE day = ? AND program_id = ?;', (day, program_id, ))
     rows = c.fetchall()
 
     # Get the column names
@@ -129,6 +132,13 @@ def current_program():
 
     # Close and commit DB
     close_db(conn)
+
+    # In case of StrongLift 5x5 change day to Workout A and B
+    if program_id == 4 and day == 1:
+        day = 'A'
+
+    elif program_id == 4 and day == 2:
+        day = 'B'
 
     return render_template("current_program.html", exercises=exercises, day=day)
 
