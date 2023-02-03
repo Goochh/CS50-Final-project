@@ -7,10 +7,12 @@
 {% block main %}    
         
         {% if day %}
-        <div class="day">
-            <h1 class="darkmodetext">Day {{ day }}</h1>
+        <div class="day darkmodetext">
+            <h1>Day {{ day }}</h1>
+            <h1><div id="timer"></div></h1>
         </div>
         {% endif %}
+        
             
         
         {% for exercise in exercises %}
@@ -26,20 +28,14 @@
                         <tr>
                             <td><input type="number" class="form-control" placeholder="KG"></td>
                             <td><input type="number" class="form-control" placeholder="{{ exercise.reps }}"></td>
-                            <td><button class="material-symbols-outlined" onclick="startTimer()">task_alt</button> <div class="timer"></div></td>
+                            <td><button class="material-symbols-outlined next-button" onclick="startTimer()">task_alt</button></td>
                         </tr>  
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+            </div> 
         {% endfor %}
-
-
-    <script>
-    // Timer function that starts when the button is clicked
-    function startTimer() {
-    // Code for starting the timer
-    }
-    </script>  
+        
+        <audio id="timeout_audio"></audio>
 
 {% endblock %}

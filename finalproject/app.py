@@ -117,8 +117,6 @@ def current_program():
 
     day = userprogress[0].get('day')
     program_id = userprogress[0].get('program_id')
-    print(program_id)
-    print(day)
 
     # Query DB
     c.execute('SELECT * FROM exercises WHERE day = ? AND program_id = ?;', (day, program_id, ))
