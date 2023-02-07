@@ -14,8 +14,8 @@ th {
 
 @media (min-width: 700px) {
   .container-fluid {
-    padding-right: 25em;
-    padding-left: 25em;
+    padding-right: 20em;
+    padding-left: 20em;
     margin-right: auto;
     margin-left: auto;
   }
@@ -109,4 +109,13 @@ table.darkmodetext {
 
 .timer {
   margin-left: auto;
+}
+
+.cancelled-text {
+    display: none;
+    color:crimson;
+}
+
+.cancel-button {
+    display: none;
 }

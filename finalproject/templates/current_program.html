@@ -28,7 +28,12 @@
                         <tr>
                             <td><input type="number" class="form-control" placeholder="KG"></td>
                             <td><input type="number" class="form-control" placeholder="{{ exercise.reps }}"></td>
-                            <td><button class="material-symbols-outlined next-button" onclick="startTimer()">task_alt</button></td>
+                            <td>
+                            <button class="material-symbols-outlined start-timer" onclick="swapIcon(); startTimer();">task_alt</button>
+
+                            <button class="cancelled-text material-symbols-outlined stop-timer" style="display: none;" onclick="stopTimer();">close</button>
+                            
+                            </td>
                         </tr>  
                         {% endfor %}
                     </tbody>
