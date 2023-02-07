@@ -15,6 +15,43 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+conn = open_db('permabulk.db')
+c = conn.cursor
+
+c.execute("""CREATE UNIQUE INDEX username ON users (username);
+CREATE TABLE IF NOT EXISTS 'programs' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+'program_name' TEXT NOT NULL,
+'description' TEXT NOT NULL, image);
+CREATE TABLE Workouts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  program_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  date DATE NOT NULL,
+  exercise_name TEXT NOT NULL,
+  sets INTEGER NOT NULL,
+  reps INTEGER NOT NULL,
+  weight REAL NOT NULL,
+  FOREIGN KEY (program_id) REFERENCES Programs(id),
+  FOREIGN KEY (user_id) REFERENCES Users(id)
+);
+CREATE TABLE user_program_progress (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  program_id INTEGER NOT NULL,
+  week INTEGER NOT NULL DEFAULT 1, day INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users (id),
+  FOREIGN KEY (program_id) REFERENCES programs (id)
+);
+CREATE TABLE exercises (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  program_id INTEGER NOT NULL,
+  exercise TEXT NOT NULL, day INTEGER, reps TEXT, sets INTEGER NOT NULL DEFAULT 0, weight REAL,
+  FOREIGN KEY (program_id) REFERENCES programs (id)
+);
+CREATE UNIQUE INDEX user_id_unique_index ON user_program_progress (user_id);""")
+
+close_db(conn)
+
 
 @app.route("/")
 @login_required
