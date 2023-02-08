@@ -101,6 +101,8 @@ def programs():
 @login_required
 def current_program():
     
+    #TODO: Make queries cleaner and combine
+
     # Open DB
     conn = open_db('permabulk.db')
     c = conn.cursor()
@@ -128,6 +130,10 @@ def current_program():
     # Convert rows to a list of dictionaries
     exercises = [dict(zip(columns, row)) for row in rows]
 
+    # Get program_name
+    c.execute('SELECT program_name FROM programs WHERE id = ?;', (program_id, ))
+    program_name = c.fetchall()
+
     # Close and commit DB
     close_db(conn)
 
@@ -138,7 +144,9 @@ def current_program():
     elif program_id == 4 and day == 2:
         day = 'B'
 
-    return render_template("current_program.html", exercises=exercises, day=day)
+
+
+    return render_template("current_program.html", exercises=exercises, day=day, program_name=program_name[0][0])
 
     exc
 @app.route("/diet", methods=["GET"])

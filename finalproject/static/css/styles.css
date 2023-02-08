@@ -111,11 +111,8 @@ table.darkmodetext {
   margin-left: auto;
 }
 
-.cancelled-text {
+.stop-timer {
     display: none;
-    color:crimson;
+    color: red; 
 }
 
-.cancel-button {
-    display: none;
-}

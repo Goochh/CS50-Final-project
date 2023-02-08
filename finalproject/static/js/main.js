@@ -57,21 +57,32 @@ function stopTimer() {
 }
 
 
-function swapIcon() {
+function swapIcon(id) {
 
-    // Replace the task_alt button with an X
-    let button = document.getElementsByClassName("start-timer")[0];
-    let cancelledText = document.getElementsByClassName("cancelled-text")[0];
+    // Replace the start-timer button with an stop-timer
+    let button = document.getElementById(id);
+    let stopTimer = document.getElementById(id.replace("start-timer", "stop-timer"));
     
     button.style.display = "none";
-    cancelledText.style.display = "inline";
+    stopTimer.style.display = "inline";
 
-    
+    // Disable input
+    let input1 = button.closest('tr').getElementsByTagName("input")[0];
+    input1.setAttribute("disabled", true);
 
-    cancelledText.addEventListener("click", function() 
+    let input2 = button.closest('tr').getElementsByTagName("input")[1];
+    input2.setAttribute("disabled", true);
+
+    // When the X for stop-timer gets clicked
+    stopTimer.addEventListener("click", function() 
     {
-        cancelledText.style.display = "none";
-        button.style.display = "inline"; 
+        stopTimer.style.display = "none";
+        button.style.display = "inline";
+
+        // Re-enable input
+        input1.removeAttribute("disabled");
+        input2.removeAttribute("disabled");
+        
     });
 }
 

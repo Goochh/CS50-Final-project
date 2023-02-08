@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Home
+    {{ program_name }}
 {% endblock %}
 
 {% block main %}    
@@ -29,10 +29,18 @@
                             <td><input type="number" class="form-control" placeholder="KG"></td>
                             <td><input type="number" class="form-control" placeholder="{{ exercise.reps }}"></td>
                             <td>
-                            <button class="material-symbols-outlined start-timer" onclick="swapIcon(); startTimer();">task_alt</button>
+                            <button 
+                                class="material-symbols-outlined start-timer" id="{{ exercise.exercise }}-start-timer-{{ i }}" 
+                                onclick="swapIcon('{{ exercise.exercise }}-start-timer-{{ i }}'); startTimer();">
+                                task_alt
+                            </button>
 
-                            <button class="cancelled-text material-symbols-outlined stop-timer" style="display: none;" onclick="stopTimer();">close</button>
-                            
+                            <button 
+                                class="material-symbols-outlined stop-timer" 
+                                id="{{ exercise.exercise }}-stop-timer-{{ i }}" 
+                                onclick="stopTimer();">
+                                close
+                            </button>  
                             </td>
                         </tr>  
                         {% endfor %}
