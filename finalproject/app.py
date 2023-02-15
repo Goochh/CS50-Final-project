@@ -6,7 +6,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
-from functions import login_required, open_db, close_db
+from functions import login_required, db_fetch, db_modify
 
 app = Flask(__name__, static_folder='static')
 
@@ -49,50 +49,26 @@ def programs():
         # Fetch chosen program
         session["program_id"] = request.form.get("program_id")
         
-        # Open DB
-        conn = open_db('permabulk.db')
-        c = conn.cursor()
-
-        # Update user progress table
-        try:
-            c.execute('INSERT INTO user_program_progress (user_id, program_id) VALUES (?, ?);', (session["user_id"], session["program_id"], ))
         
-        except Error as e:
-            c.execute('UPDATE user_program_progress SET program_id = ? WHERE user_id = ?;', (session["program_id"], session["user_id"], ))
 
-        # Query DB
-        c.execute('SELECT * FROM programs')
-        rows = c.fetchall()
+        # # Update user progress table
+        db_modify(  """
+                    INSERT OR REPLACE INTO user_program_progress (user_id, program_id)
+                    VALUES (?, ?);
+                    """, (session["user_id"], session["program_id"], ))
 
-        # Get the column names
-        columns = [description[0] for description in c.description]
-        
+
         # Convert rows to a list of dictionaries
-        programs = [dict(zip(columns, row)) for row in rows]
-
-        # Close DB
-        close_db(conn)
+        programs = db_fetch('SELECT * FROM programs')
 
         # Redirect user to home page
         return redirect("/current_program")
 
-
     # User reached route via GET (as by clicking a link or via redirect)
     else:
 
-        # Open DB
-        conn = open_db('permabulk.db')
-        c = conn.cursor()
-
-        # Query DB
-        c.execute('SELECT * FROM programs')
-        rows = c.fetchall()
-
-        # Get the column names
-        columns = [description[0] for description in c.description]
-        
-        # Convert rows to a list of dictionaries
-        programs = [dict(zip(columns, row)) for row in rows]
+        # Fetch programs
+        programs = db_fetch('SELECT * FROM programs')
 
         return render_template("programs.html", programs=programs)
 
@@ -101,64 +77,69 @@ def programs():
 @login_required
 def current_program():
     
-    #TODO: Make queries cleaner and combine
+    #TODO: Made DB queries cleaner and submit form is working
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
 
-    # Open DB
-    conn = open_db('permabulk.db')
-    c = conn.cursor()
+        
+        # Extract values from the form
+        kg = request.form.getlist('kg')
+        reps = request.form.getlist('reps')
+        exercise_names = request.form.getlist('exercise')
 
-    # Fetch user progress from DB
-    c.execute('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
-    rows = c.fetchall()
+        testje = db_fetch('SELECT * FROM users WHERE user_id = ?', (session["user_id"], ))
 
-    # Get the column names
-    columns = [description[0] for description in c.description]
-    
-    # Convert rows to a list of dictionaries
-    userprogress = [dict(zip(columns, row)) for row in rows]
-
-    day = userprogress[0].get('day')
-    program_id = userprogress[0].get('program_id')
-
-    # Query DB
-    c.execute('SELECT * FROM exercises WHERE day = ? AND program_id = ?;', (day, program_id, ))
-    rows = c.fetchall()
-
-    # Get the column names
-    columns = [description[0] for description in c.description]
-    
-    # Convert rows to a list of dictionaries
-    exercises = [dict(zip(columns, row)) for row in rows]
-
-    # Get program_name
-    c.execute('SELECT program_name FROM programs WHERE id = ?;', (program_id, ))
-    program_name = c.fetchall()
-
-    # Close and commit DB
-    close_db(conn)
-
-    # In case of StrongLift 5x5 change day to Workout A and B
-    if program_id == 4 and day == 1:
-        day = 'A'
-
-    elif program_id == 4 and day == 2:
-        day = 'B'
+        print(kg, reps, exercise_names)
 
 
 
-    return render_template("current_program.html", exercises=exercises, day=day, program_name=program_name[0][0])
+        return render_template("thank_you.html")
 
-    exc
-@app.route("/diet", methods=["GET"])
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        # Get userprogress
+        userprogress = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
+
+        day = userprogress[0]["day"]
+        program_id = userprogress[0]["program_id"]
+
+        # Get exercises
+        exercises = db_fetch('SELECT * FROM exercises WHERE day = ? AND program_id = ?;', (day, program_id, ))
+
+        # # Get program_name
+        programs = db_fetch('SELECT program_name FROM programs WHERE id = ?;', (program_id, ))
+        program_name = programs[0]["program_name"]
+ 
+        # In case of StrongLift 5x5 change day to Workout A and B
+        if program_id == 4 and day == 1:
+            day = 'A'
+
+        elif program_id == 4 and day == 2:
+            day = 'B'
+
+        return render_template("current_program.html", exercises=exercises, day=day, program_name=program_name)
+
+@app.route("/recipes", methods=["GET"])
 @login_required
-def diet():
-    return render_template("diet.html")
+def recipes():
 
+    # User reached route via GET (as by clicking a link or via redirect)
+    
+    # Fetch recipes
+    recipes = db_fetch('SELECT * FROM recipes')
+
+    return render_template("recipes.html", recipes=recipes)
+    
 
 @app.route("/statistics", methods=["GET"])
 @login_required
 def statistics():
     return render_template("statistics.html")
+
+@app.route("/1rm", methods=["GET"])
+@login_required
+def onerepmax():
+    return render_template("calculator.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -177,36 +158,24 @@ def login():
             flash("Must provide password")
             return redirect("/login")
 
-        # Open database
-        conn = open_db('permabulk.db')
-        c = conn.cursor()
-
         # Ensure username exists and password is correct
-        c.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
-        rows = c.fetchall()
+        userinfo = db_fetch('SELECT * FROM users WHERE username = ?', (request.form.get("username"),))
+
+        print(userinfo)
 
         # If there is no row returned username doesn't exist
-        if len(rows) != 1:
+        if len(userinfo) != 1:
             flash("Invalid username and/or password")
             return redirect("/login")
 
-        # Get the column names
-        columns = [description[0] for description in c.description]
-        
-        # Convert rows to a list of dictionaries
-        rows = [dict(zip(columns, row)) for row in rows]
-
         # Check if password is correct
-        if not check_password_hash(rows[0]["password"], request.form.get("password")):
+        if not check_password_hash(userinfo[0]["password"], request.form.get("password")):
             flash("Invalid username and/or password")
             return redirect("/login")
 
         # Add to session
         session["username"] = request.form.get("username")
-        session["user_id"] = rows[0]["user_id"]
-
-        # Close database
-        close_db(conn)
+        session["user_id"] = userinfo[0]["user_id"]
 
         # Succesful login
         flash("You were successfully logged in!")
@@ -240,27 +209,19 @@ def register():
             flash("Passwords don't match :(")
             return redirect("/register")
 
-        # Open database
-        conn = open_db('permabulk.db')
-        c = conn.cursor()
-
         # INSERT new unique user into database
-        try: c.execute("INSERT INTO users (username, password) VALUES(?, ?)", (request.form.get("username"), generate_password_hash(request.form.get("password")),))
+        try: db_modify('INSERT INTO users (username, password) VALUES (?, ?);', (request.form.get("username"), generate_password_hash(request.form.get("password")),))
 
         except sqlite3.IntegrityError as error:
             flash("Username already taken :(")
             return redirect("/register")
 
         # Add to session to log user in
-        c.execute("SELECT * FROM users WHERE username = ?", (request.form.get("username"),))
-        rows = c.fetchall()
-
+        user = db_fetch('SELECT * FROM users WHERE username = ?', (request.form.get("username"),))
+        
         # Set current session
         session["username"] = request.form.get("username")
-        session["user_id"] = rows[0][0]
-
-        # Close database
-        close_db(conn)
+        session["user_id"] = user[0]["user_id"]
 
         # Flash message for succesfull registration
         flash("Registration successfull!")
@@ -279,11 +240,6 @@ def logout():
 
     # Redirect user to login form
     return redirect("/login")
-
-@app.route("/test")
-def test():
-
-    return render_template("calculator.html")
 
 
 if __name__ == '__main__':

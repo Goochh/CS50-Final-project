@@ -17,7 +17,7 @@ function startTimer() {
   timeoutAudio.src = "http://soundbible.com/grab.php?id=2218&type=mp3";
   timeoutAudio.load();
 
-  let count = 10;
+  let count = 0;
   counter = setInterval(function () {
     count--;
 
@@ -85,4 +85,22 @@ function swapIcon(id) {
         
     });
 }
+
+// Search function jQuery bootstrap
+$(document).ready(function() {
+    // Listen for changes to the search input
+    $('#search-input').on('input', function() {
+        const searchQuery = $(this).val().toLowerCase();
+        // Hide or show program cards based on the search query
+        $('#cards-container .card').each(function() {
+            const programName = $(this).find('.card-title').text().toLowerCase();
+            const programDescription = $(this).find('.card-text').text().toLowerCase();
+            if (programName.includes(searchQuery) || programDescription.includes(searchQuery)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });  
+});
 

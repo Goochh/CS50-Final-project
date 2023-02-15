@@ -14,7 +14,7 @@
         {% endif %}
         
             
-        
+        <form action="/current_program" method="post">
         {% for exercise in exercises %}
             <div class="table-responsive">
                 <table class="darkmodetext">
@@ -26,8 +26,9 @@
                     <tbody>
                         {% for i in range(exercise.sets) %}
                         <tr>
-                            <td><input type="number" class="form-control" placeholder="KG"></td>
-                            <td><input type="number" class="form-control" placeholder="{{ exercise.reps }}"></td>
+                            <input type="hidden" name="exercise" value="{{ exercise.exercise }}">
+                            <td><input type="number" class="form-control" name="kg" placeholder="KG"></td>
+                            <td><input type="number" class="form-control" name="reps" placeholder="{{ exercise.reps }}"></td>
                             <td>
                             <button 
                                 class="material-symbols-outlined start-timer" id="{{ exercise.exercise }}-start-timer-{{ i }}" 
@@ -48,7 +49,14 @@
                 </table>
             </div> 
         {% endfor %}
+                            <!-- finish workout -->
+                            <button class="btn btn-primary" id="finish-workout" type="sumbit">
+                                Finish Workout
+                            </button>
+        </form>
         
+                           
+        <!-- audio -->
         <audio id="timeout_audio"></audio>
 
 {% endblock %}

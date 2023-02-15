@@ -7,15 +7,17 @@
 {% block main %}
 
         <!-- search bar -->
-        <div class="search-container">
+        <div class="search-container mx-auto">
             <form>
-            <input type="text" placeholder="Search.." id="search-input">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search.." id="search-input">
+                </div> 
             </form>
         </div>
 
 
           <!-- programs content cards -->
-          <div class="row">
+          <div class="row" id="cards-container">
             {% for program in programs %}
             <div class="col-sm-6">
               <div class="card">
@@ -28,7 +30,8 @@
                   </form>    
                 </div>
               </div>
-            </div>
+            </div>\
             {% endfor %}
-            
+        </div>
+
 {% endblock %}

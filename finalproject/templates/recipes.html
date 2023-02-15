@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Diet
+{% endblock %}
+
+{% block main %}
+
+    <!-- search bar -->
+    <div class="search-container mx-auto">
+        <form>
+            <div class="input-group">
+                <input class="form-control" type="text" placeholder="Search.." id="search-input">
+            </div> 
+        </form>
+    </div>
+    
+     <!-- recipe content cards -->
+    <div class="row" id="cards-container">
+        {% for recipe in recipes %}
+        <div class="col-sm-6">
+          <div class="card">
+            <img src="{{ recipe.image }}" class="card-img-top" alt="Baked oats">
+            <div class="card-body">
+              <h5 class="card-title">{{ recipe.recipe_name }}</h5>
+              <p class="card-text">{{ recipe.description }}</p>
+              <a href="https://mealprepmanual.com/banana-cinnamon-baked-oatmeal/" class="btn btn-info">Click</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

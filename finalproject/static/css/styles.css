@@ -12,12 +12,16 @@ th {
   text-align: left;
 }
 
-@media (min-width: 700px) {
+@media (min-width: 576px) {
   .container-fluid {
     padding-right: 20em;
     padding-left: 20em;
     margin-right: auto;
     margin-left: auto;
+  }
+
+  .search-container {
+    max-width: 300px;
   }
 }
 
@@ -32,7 +36,7 @@ th {
 .col-sm-6 {
   padding-top: 15px;
   width: 100%;
-  max-width: 320px;
+  max-width: 300px;
 }
 
 .homepage {
@@ -116,3 +120,7 @@ table.darkmodetext {
     color: red; 
 }
 
+#finish-workout {
+    margin-top: 2em;
+    margin-right: 3em;
+}
