@@ -6,21 +6,23 @@
 
 {% block main %}
 
-            <div class="table-responsive">
-                <table class="darkmodetext">
-                    <thead>
-                        <tr>
-                            <th>Benchpress (1 Rep Max)</th>     
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><input type="number" class="form-control" placeholder="KG"></td>
-                            <td><button class="material-symbols-outlined">task_alt</button>
-                        </tr>     
-                    </tbody>
-                </table>
-            </div>
+            <form action="/1rm" method="post">
+                <div class="table-responsive">
+                    <table class="darkmodetext">
+                        <thead>
+                            <tr>
+                                <th>Benchpress (1 Rep Max)</th>     
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" class="form-control" placeholder="KG" name="KG"></td>
+                                <td><button class="material-symbols-outlined" type="submit">task_alt</button>
+                            </tr>     
+                        </tbody>
+                    </table>
+                </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="darkmodetext">
@@ -79,8 +81,8 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><input type="number" class="form-control" placeholder="KG"></td>
-                                <td><input type="number" class="form-control" placeholder="xReps"></td>
+                                <td><input type="number" id="weight-input" class="form-control" placeholder="KG"></td>
+                                <td><input type="number" id="reps-input" class="form-control" placeholder="xReps"></td>
                             </tr> 
                         </tbody>
                     </table>
@@ -90,7 +92,7 @@
                     <table>
                         <tbody>
                             <tr>
-                                <td><input type="number" class="form-control" disabled="true" placeholder="1 Rep Max"></td>
+                                <td><input type="number" class="form-control" id="one-rep-max-input" disabled="true" placeholder="1 Rep Max"></td>
                             </tr> 
                         </tbody>
                     </table>

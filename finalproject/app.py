@@ -4,6 +4,7 @@ from sqlite3 import Error
 from flask import Flask, flash, redirect, render_template, url_for, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime
 
 
 from functions import login_required, db_fetch, db_modify
@@ -77,7 +78,6 @@ def programs():
 @login_required
 def current_program():
     
-    #TODO: Made DB queries cleaner and submit form is working
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
@@ -85,12 +85,33 @@ def current_program():
         # Extract values from the form
         kg = request.form.getlist('kg')
         reps = request.form.getlist('reps')
-        exercise_names = request.form.getlist('exercise')
+        exercise_sets = request.form.getlist('exercise')
 
-        testje = db_fetch('SELECT * FROM users WHERE user_id = ?', (session["user_id"], ))
+        # Get userprogress
+        userprogress = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
 
-        print(kg, reps, exercise_names)
+        # Store the workout data in the database
+        for i in range(len(exercise_sets)):
+            exercise_set = exercise_sets[i] if exercise_sets[i] else None
+            weight = int(kg[i]) if kg[i] else None
+            num_reps = int(reps[i]) if reps[i] else None
+            
+            db_modify('INSERT INTO workouts (user_id, program_id, date, exercise_name, weight, reps) VALUES (?, ?, ?, ?, ?, ?)', 
+                    (session["user_id"], session["program_id"], datetime.now(), exercise_set, weight, num_reps, ))
 
+        # Update user progress
+        db_modify(  """
+                        UPDATE user_program_progress 
+                        SET day = CASE
+                            WHEN day < 7 THEN day + 1
+                            ELSE 1
+                        END,
+                        week = CASE
+                            WHEN day = 7 THEN week + 1
+                            ELSE week
+                        END
+                        WHERE user_id = ?
+                    """, (session["user_id"], ))
 
 
         return render_template("thank_you.html")
@@ -139,7 +160,20 @@ def statistics():
 @app.route("/1rm", methods=["GET"])
 @login_required
 def onerepmax():
-    return render_template("calculator.html")
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":  
+        print(post)
+
+
+        return render_template("onerepmax.html")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        
+        return render_template("onerepmax.html")
+
+    
 
 
 @app.route("/login", methods=["GET", "POST"])

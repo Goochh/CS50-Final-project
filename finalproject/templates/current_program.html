@@ -26,7 +26,7 @@
                     <tbody>
                         {% for i in range(exercise.sets) %}
                         <tr>
-                            <input type="hidden" name="exercise" value="{{ exercise.exercise }}">
+                            <input type="hidden" name="exercise" value="{{ exercise.exercise }}-set-{{ i }}">
                             <td><input type="number" class="form-control" name="kg" placeholder="KG"></td>
                             <td><input type="number" class="form-control" name="reps" placeholder="{{ exercise.reps }}"></td>
                             <td>

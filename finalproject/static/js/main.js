@@ -104,3 +104,22 @@ $(document).ready(function() {
     });  
 });
 
+// function to calculate one rep max based on weight and reps
+$(document).ready(function() {
+    const weightInput = $('#weight-input');
+    const repsInput = $('#reps-input');
+    const oneRepMaxInput = $('#one-rep-max-input');
+
+    const calculateMax = () => {
+        const weight = weightInput.val();
+        const reps = repsInput.val();
+        const oneRepMax = weight * (1 + reps/30);
+
+        oneRepMaxInput.val(oneRepMax.toFixed(1));
+        };
+
+    weightInput.on('input', calculateMax);
+    repsInput.on('input', calculateMax);
+});
+
+  
