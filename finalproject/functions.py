@@ -83,4 +83,24 @@ def db_modify(db_query, db_params=None):
     except Error as e:
         print(e)
 
+def get_stats():
+
+    # Fetch workout data  
+    workouts_data = db_fetch('SELECT exercise_name, reps, weight, date FROM workouts WHERE user_id = ? AND exercise_name IN (?, ?, ?, ?)',
+                         (session["user_id"], 'Bench Press (Barbell)-set-4', 'Back Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0'))
+
+    # Calculate one rep max for each exercise. weight * (1 + reps/30) = ekley formula
+    exercise_1rm_dict = {}
+    for i in range(len(workouts_data)):
+        exercise_name = workouts_data[i]["exercise_name"]
+        date = workouts_data[i]["date"]
+        exercise_1rm = round(workouts_data[i]["weight"] * (1 + workouts_data[i]["reps"]/30), 2)
+
+        if exercise_name not in exercise_1rm_dict:
+            exercise_1rm_dict[exercise_name] = []
+        exercise_1rm_dict[exercise_name].append({"date": date, "1rm": exercise_1rm})
+
+
+    return exercise_1rm_dict
+
         

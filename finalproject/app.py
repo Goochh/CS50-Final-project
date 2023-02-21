@@ -1,13 +1,14 @@
-import sqlite3
+import sqlite3, json
 
 from sqlite3 import Error
-from flask import Flask, flash, redirect, render_template, url_for, request, session
+from flask import Flask, flash, redirect, render_template, url_for, request, session, jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
 
-from functions import login_required, db_fetch, db_modify
+
+from functions import login_required, db_fetch, db_modify, get_stats
 
 app = Flask(__name__, static_folder='static')
 
@@ -50,8 +51,6 @@ def programs():
         # Fetch chosen program
         session["program_id"] = request.form.get("program_id")
         
-        
-
         # # Update user progress table
         db_modify(  """
                     INSERT OR REPLACE INTO user_program_progress (user_id, program_id)
@@ -120,6 +119,7 @@ def current_program():
     else:
         # Get userprogress
         userprogress = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
+        print(userprogress)
 
         day = userprogress[0]["day"]
         program_id = userprogress[0]["program_id"]
@@ -155,23 +155,50 @@ def recipes():
 @app.route("/statistics", methods=["GET"])
 @login_required
 def statistics():
-    return render_template("statistics.html")
 
-@app.route("/1rm", methods=["GET"])
+    onerms = get_stats()
+    
+
+    return jsonify(onerms)
+
+@app.route("/1rm", methods=["GET", "POST"])
 @login_required
 def onerepmax():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":  
-        print(post)
 
+        # Extract values from the form
+        benchpress_kg = request.form.get('benchpress_kg')
+        squat_kg = request.form.get('squat_kg')
+        deadlift_kg = request.form.get('deadlift_kg')
+        OHP_kg = request.form.get('OHP_kg')
 
-        return render_template("onerepmax.html")
+        # Update user one rep max
+        if benchpress_kg:
+            db_modify('UPDATE user_program_progress SET benchpress1rm = ? WHERE user_id = ?', (benchpress_kg, session["user_id"], ))
+        
+        if squat_kg:
+            db_modify('UPDATE user_program_progress SET backsquat1rm = ? WHERE user_id = ?', (squat_kg, session["user_id"], ))
+
+        if deadlift_kg:
+            db_modify('UPDATE user_program_progress SET deadlift1rm = ? WHERE user_id = ?', (deadlift_kg, session["user_id"], ))
+
+        if OHP_kg:
+            db_modify('UPDATE user_program_progress SET overheadpress1rm = ? WHERE user_id = ?', (OHP_kg, session["user_id"], ))
+        
+        return redirect("/1rm")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
+
+        # Fetch user progress
+        onerepmaxs = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?', (session["user_id"], ))
+
         
-        return render_template("onerepmax.html")
+
+
+        return render_template("onerepmax.html", onerepmaxs=onerepmaxs)
 
     
 
@@ -194,8 +221,6 @@ def login():
 
         # Ensure username exists and password is correct
         userinfo = db_fetch('SELECT * FROM users WHERE username = ?', (request.form.get("username"),))
-
-        print(userinfo)
 
         # If there is no row returned username doesn't exist
         if len(userinfo) != 1:
@@ -256,6 +281,10 @@ def register():
         # Set current session
         session["username"] = request.form.get("username")
         session["user_id"] = user[0]["user_id"]
+        session["program_id"] = 1
+
+        # Set default user_program_progress
+        db_modify('INSERT INTO user_program_progress (user_id, program_id) VALUES (?, 1)', (session["user_id"], ))
 
         # Flash message for succesfull registration
         flash("Registration successfull!")

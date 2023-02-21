@@ -122,4 +122,41 @@ $(document).ready(function() {
     repsInput.on('input', calculateMax);
 });
 
+var ctx = document.getElementById("myChart").getContext("2d");
+    var myChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ],
+        datasets: [
+          {
+            label: "Benchpress (Barbell)",
+            data: [2, 9, 3, 17, 6, 3, 7],
+            backgroundColor: "rgba(79, 195, 247, 0.6)",
+          },
+          {
+            label: "Squat (Barbell)",
+            data: [2, 2, 5, 5, 2, 1, 10],
+            backgroundColor: "rgba(0, 100, 0, 0.6)",
+          },
+          {
+            label: "Deadlift (Barbell)",
+            data: [4, 4, 2, 7, 0, 3, 8],
+            backgroundColor: "rgba(255, 87, 51, 0.6)",
+          },
+          {
+            label: "Overhead Press (Barbell)",
+            data: [6, 3, 1, 15, 2, 9, 11],
+            backgroundColor: "rgba(204, 204, 204, 0.6",
+          },
+        ],
+      },
+    });
   
