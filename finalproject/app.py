@@ -1,4 +1,5 @@
-import sqlite3, json
+import sqlite3
+import json
 
 from sqlite3 import Error
 from flask import Flask, flash, redirect, render_template, url_for, request, session, jsonify
@@ -79,8 +80,7 @@ def current_program():
     
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-
-        
+  
         # Extract values from the form
         kg = request.form.getlist('kg')
         reps = request.form.getlist('reps')
@@ -102,7 +102,7 @@ def current_program():
         db_modify(  """
                         UPDATE user_program_progress 
                         SET day = CASE
-                            WHEN day < 7 THEN day + 1
+                            WHEN day < 6 THEN day + 1
                             ELSE 1
                         END,
                         week = CASE
@@ -151,15 +151,21 @@ def recipes():
 
     return render_template("recipes.html", recipes=recipes)
     
+@app.route("/data", methods=["GET"])
+@login_required
+def data():
+        onerms = get_stats()
+        return jsonify(onerms) 
 
-@app.route("/statistics", methods=["GET"])
+
+@app.route("/statistics", methods=["GET", "POST"])
 @login_required
 def statistics():
-
-    onerms = get_stats()
     
 
-    return jsonify(onerms)
+
+        return render_template("statistics.html")
+
 
 @app.route("/1rm", methods=["GET", "POST"])
 @login_required
@@ -201,8 +207,6 @@ def onerepmax():
         return render_template("onerepmax.html", onerepmaxs=onerepmaxs)
 
     
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 

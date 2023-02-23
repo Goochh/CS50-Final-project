@@ -83,23 +83,31 @@ def db_modify(db_query, db_params=None):
     except Error as e:
         print(e)
 
-def get_stats():
 
+def get_stats():
     # Fetch workout data  
     workouts_data = db_fetch('SELECT exercise_name, reps, weight, date FROM workouts WHERE user_id = ? AND exercise_name IN (?, ?, ?, ?)',
-                         (session["user_id"], 'Bench Press (Barbell)-set-4', 'Back Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0'))
+                         (session["user_id"], 'Bench Press (Barbell)-set-4', 'Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0'))
+
 
     # Calculate one rep max for each exercise. weight * (1 + reps/30) = ekley formula
     exercise_1rm_dict = {}
+
+    # For the amount of results
     for i in range(len(workouts_data)):
         exercise_name = workouts_data[i]["exercise_name"]
+        exercise_name = exercise_name[:-6]
         date = workouts_data[i]["date"]
+
+        # Apply ekley formula to fetched data
         exercise_1rm = round(workouts_data[i]["weight"] * (1 + workouts_data[i]["reps"]/30), 2)
 
+        # If exercise not yet in list of dicts
         if exercise_name not in exercise_1rm_dict:
-            exercise_1rm_dict[exercise_name] = []
-        exercise_1rm_dict[exercise_name].append({"date": date, "1rm": exercise_1rm})
+            exercise_1rm_dict[exercise_name] = []    
 
+        # Add date and calculated 1rm to certain exercise
+        exercise_1rm_dict[exercise_name].append({"date": date[:-7], "onerm": exercise_1rm})
 
     return exercise_1rm_dict
 
