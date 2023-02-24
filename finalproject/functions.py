@@ -15,20 +15,35 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# def open_db(db_file):
-#     try:
-#         conn = sqlite3.connect(db_file)
-#         return conn
-#     except Error as e:
-#         print(e)
-#     return None
 
-# def close_db(conn):
-#     try:
-#         conn.commit()
-#         conn.close()
-#     except Error as e:
-#         print(e)
+# Accepts a query and optionally parameters, returns the results
+def db_query(db_query, db_params=None):
+    try:
+        # Open and connect DB
+        conn = sqlite3.connect('permabulk.db')
+        c = conn.cursor()  
+
+        # If multiple arguments
+        if db_params is None:
+            c.execute(db_query)
+            result = c.fetchone()
+            value = result[0]
+ 
+        else:
+            c.execute(db_query, db_params)
+            result = c.fetchone()
+            value = result[0]
+
+        # Close and commit DB
+        conn.commit()
+        conn.close()
+
+    except Error as e:
+        print(e)
+
+
+    return value
+
 
 # Accepts a query and optionally parameters, returns the results as a list of dicts
 def db_fetch(db_query, db_params=None):
@@ -57,12 +72,12 @@ def db_fetch(db_query, db_params=None):
         listofdicts = [dict(zip(columns, row)) for row in rows]
 
         # Returns listofdicts
-        return(listofdicts)
+        return listofdicts
 
     except Error as e:
         print(e)
 
-# Accepts a query and optionally parameters, returns the results as a list of dicts
+# Accepts a query and optionally parameters, returns the results
 def db_modify(db_query, db_params=None):
     try:
         # Open and connect DB
@@ -86,8 +101,8 @@ def db_modify(db_query, db_params=None):
 
 def get_stats():
     # Fetch workout data  
-    workouts_data = db_fetch('SELECT exercise_name, reps, weight, date FROM workouts WHERE user_id = ? AND exercise_name IN (?, ?, ?, ?)',
-                         (session["user_id"], 'Bench Press (Barbell)-set-4', 'Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0'))
+    workouts_data = db_fetch('SELECT exercise_name, reps, weight, date FROM workouts WHERE user_id = ? AND exercise_name IN (?, ?, ?, ?, ?)',
+                         (session["user_id"], 'Bench Press (Barbell)-set-4', 'Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0', 'Barbell Row-set-4'))
 
 
     # Calculate one rep max for each exercise. weight * (1 + reps/30) = ekley formula

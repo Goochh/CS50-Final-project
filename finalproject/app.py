@@ -1,5 +1,5 @@
 import sqlite3
-import json
+
 
 from sqlite3 import Error
 from flask import Flask, flash, redirect, render_template, url_for, request, session, jsonify
@@ -8,8 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 
 
-
-from functions import login_required, db_fetch, db_modify, get_stats
+from functions import login_required, db_fetch, db_modify, db_query, get_stats
 
 app = Flask(__name__, static_folder='static')
 
@@ -22,33 +21,18 @@ Session(app)
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html")
+
+    quotes = db_fetch('SELECT * FROM quotes')
+
+    return render_template("index.html", quotes=quotes)
 
 
 @app.route("/programs", methods=["GET", "POST"])
 @login_required
 def programs():
-
-    
-    # # Open DB
-    # conn = open_db('permabulk.db')
-    # c = conn.cursor()
-
-    # # User already picked program
-    # c.execute("SELECT * FROM user_program_progress WHERE user_id = ?", (session["user_id"], ))
-    # rows = c.fetchall()
-
-    # # Close DB
-    # close_db(conn)
-
-    # # If there is a row returned user started program
-    # if len(rows) == 1:
-    #     flash("Already picked program")
-    #     return redirect("/current_program")
-    
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        
+
         # Fetch chosen program
         session["program_id"] = request.form.get("program_id")
         
@@ -58,16 +42,11 @@ def programs():
                     VALUES (?, ?);
                     """, (session["user_id"], session["program_id"], ))
 
-
-        # Convert rows to a list of dictionaries
-        programs = db_fetch('SELECT * FROM programs')
-
         # Redirect user to home page
         return redirect("/current_program")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-
         # Fetch programs
         programs = db_fetch('SELECT * FROM programs')
 
@@ -84,19 +63,20 @@ def current_program():
         # Extract values from the form
         kg = request.form.getlist('kg')
         reps = request.form.getlist('reps')
-        exercise_sets = request.form.getlist('exercise')
-
+        exercise_names = request.form.getlist('exercise')
+        
         # Get userprogress
         userprogress = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
 
         # Store the workout data in the database
-        for i in range(len(exercise_sets)):
-            exercise_set = exercise_sets[i] if exercise_sets[i] else None
-            weight = int(kg[i]) if kg[i] else None
-            num_reps = int(reps[i]) if reps[i] else None
-            
-            db_modify('INSERT INTO workouts (user_id, program_id, date, exercise_name, weight, reps) VALUES (?, ?, ?, ?, ?, ?)', 
-                    (session["user_id"], session["program_id"], datetime.now(), exercise_set, weight, num_reps, ))
+        for i in range(len(exercise_names)):
+            if kg[i] and reps[i] and exercise_names[i]:
+                exercise_name = exercise_names[i] if exercise_names[i] else None
+                weight = float(kg[i]) if kg[i] else None
+                num_reps = int(reps[i]) if reps[i] else None
+                
+                db_modify('INSERT INTO workouts (user_id, program_id, date, exercise_name, weight, reps) VALUES (?, ?, ?, ?, ?, ?)', 
+                        (session["user_id"], session["program_id"], datetime.now(), exercise_name, weight, num_reps, ))
 
         # Update user progress
         db_modify(  """
@@ -112,15 +92,21 @@ def current_program():
                         WHERE user_id = ?
                     """, (session["user_id"], ))
 
-
-        return render_template("thank_you.html")
+        return redirect("/current_program")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
+        # Check if user exists in user_program_progress table
+        progress_exists = db_query('SELECT EXISTS(SELECT * FROM user_program_progress WHERE user_id = ?);', (session["user_id"], ))
+    
+        # If new user redirect to program page to pick program
+        if progress_exists == 0:
+            flash("Pick a program first!")
+            return redirect('/programs')
+
         # Get userprogress
         userprogress = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?;', (session["user_id"], ))
-        print(userprogress)
-
+        
         day = userprogress[0]["day"]
         program_id = userprogress[0]["program_id"]
 
@@ -132,10 +118,10 @@ def current_program():
         program_name = programs[0]["program_name"]
  
         # In case of StrongLift 5x5 change day to Workout A and B
-        if program_id == 4 and day == 1:
+        if program_name == '5x5 Stronglifts' and day == 1:
             day = 'A'
 
-        elif program_id == 4 and day == 2:
+        elif program_name == '5x5 Stronglifts' and day == 2:
             day = 'B'
 
         return render_template("current_program.html", exercises=exercises, day=day, program_name=program_name)
@@ -162,8 +148,6 @@ def data():
 @login_required
 def statistics():
     
-
-
         return render_template("statistics.html")
 
 
@@ -180,7 +164,7 @@ def onerepmax():
         deadlift_kg = request.form.get('deadlift_kg')
         OHP_kg = request.form.get('OHP_kg')
 
-        # Update user one rep max
+        # Update user one rep max' Bench Press (Barbell)-set-4', 'Squat (Barbell)-set-4', 'Overhead Press (Barbell)-set-4', 'Deadlift (Barbell)-set-0'
         if benchpress_kg:
             db_modify('UPDATE user_program_progress SET benchpress1rm = ? WHERE user_id = ?', (benchpress_kg, session["user_id"], ))
         
@@ -201,9 +185,14 @@ def onerepmax():
         # Fetch user progress
         onerepmaxs = db_fetch('SELECT * FROM user_program_progress WHERE user_id = ?', (session["user_id"], ))
 
+        # Check if user exists in user_program_progress table
+        progress_exists = db_query('SELECT EXISTS(SELECT * FROM user_program_progress WHERE user_id = ?);', (session["user_id"], ))
+
+        # If new user redirect use default values for 1rm
+        if progress_exists == 0:
+            onerepmaxs = [{'benchpress1rm': 0.0, 'backsquat1rm': 0.0, 'deadlift1rm': 0.0, 'overheadpress1rm': 0.0}]
+            flash('Pick a program to save your one rep max!')
         
-
-
         return render_template("onerepmax.html", onerepmaxs=onerepmaxs)
 
     
@@ -285,11 +274,7 @@ def register():
         # Set current session
         session["username"] = request.form.get("username")
         session["user_id"] = user[0]["user_id"]
-        session["program_id"] = 1
-
-        # Set default user_program_progress
-        db_modify('INSERT INTO user_program_progress (user_id, program_id) VALUES (?, 1)', (session["user_id"], ))
-
+        
         # Flash message for succesfull registration
         flash("Registration successfull!")
        
