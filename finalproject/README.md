@@ -1,5 +1,5 @@
 # PermaBulk
-#### Video Demo:  <URL HERE>
+#### Video Demo:  https://www.youtube.com/watch?v=JQ_MRRj0N7c
 #### Description: My final project for CS50 is "PermaBulk" a python-flask web app for fitness program tracking.  
 
 ### After creating an account PermaBulk lets you choose a fitness program. The chosen program with it's given exercises, sets and reps gets displayed on the "My Program" page. On this page you can input the sets and reps you do during a workout and then press the button for an in page timer. After completing a workout by pressing the "Finish Workout" button your performance gets stored in the database to build upon the next time you have this specific day in your workout. By finishing a workout the database gets updated so now your next workout is ready for you on the "My Workout" page. Additionally there is a one rep max calculator, a recipe page and a statistics page to help you on your fitness journey. 
