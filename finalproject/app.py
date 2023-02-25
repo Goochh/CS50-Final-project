@@ -59,7 +59,7 @@ def current_program():
     
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-  
+
         # Extract values from the form
         kg = request.form.getlist('kg')
         reps = request.form.getlist('reps')

@@ -16,7 +16,7 @@ function startTimer() {
   timeoutAudio.src = "http://soundbible.com/grab.php?id=2218&type=mp3";
   timeoutAudio.load();
 
-  let count = 120;
+  let count = 5;
   counter = setInterval(function () {
     count--;
 
@@ -53,7 +53,9 @@ function stopTimer() {
 
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].removeAttribute("disabled");
-    }
+    }  
+    
+
 }
 
 
@@ -66,22 +68,24 @@ function swapIcon(id) {
     button.style.display = "none";
     stopTimer.style.display = "inline";
 
-    // Disable input
-    let input1 = button.closest('tr').getElementsByTagName("input")[0];
-    input1.setAttribute("disabled", true);
-
-    let input2 = button.closest('tr').getElementsByTagName("input")[1];
-    input2.setAttribute("disabled", true);
+     // Disable input fields for the row that the clicked start button belongs to
+    let row = button.closest('tr');
+    let inputs = row.getElementsByTagName('input');
+    for (let i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = true;
+    }
 
     // When the X for stop-timer gets clicked
     stopTimer.addEventListener("click", function() 
     {
+        event.preventDefault(); // prevent form submission behavior
         stopTimer.style.display = "none";
         button.style.display = "inline";
 
         // Re-enable input
-        input1.removeAttribute("disabled");
-        input2.removeAttribute("disabled");
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].disabled = false;
+        }
         
     });
 }
